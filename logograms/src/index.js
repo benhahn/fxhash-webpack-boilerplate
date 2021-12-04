@@ -17,18 +17,18 @@ import p5 from "p5";
 // [https://fxhash.xyz/articles/guide-mint-generative-token#features]
 
 //Features!
-const babelMode = fxrand() < 0.15
+const babelMode = fxrand() < 0.1
 let getBabel
   if (babelMode) {
-    getBabel = "babelMode" //15% babelMode
+    getBabel = "babelMode" //10% babelMode
   } else {
     getBabel = "normal"
   }
 
-const darkMode = fxrand() < 0.15
+const darkMode = fxrand() < 0.1
 let getColorMode
 if (darkMode) {
-  getColorMode = "darkMode" //15% darkMode
+  getColorMode = "darkMode" //10% darkMode
 } else {
   getColorMode = "normal"
 }
@@ -128,9 +128,9 @@ if (babelMode) {
   getLtrPts = ltrPts
 }
 
-//babelMode will override all features except color mode - 15% babelMode
+//babelMode will override all features except color mode - 10% babelMode
 window.$fxhashFeatures = {
-"color mode": getColorMode, //15% darkMode, 85% normal
+"color mode": getColorMode, //10% darkMode, 90% normal
 "print style": getPrintStyle, //50% sublimated, 50% engraved
 "character stroke form": getDotMix, //61% line, 23% dot, 15% dot-line mix
 "character stroke style": getSquig, //32% squiggly, 32% straighter, 32% straightest, 4% superSquiggly
