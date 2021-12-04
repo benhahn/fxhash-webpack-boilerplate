@@ -38,9 +38,9 @@ let getPrintStyle
 if (babelMode) {
   getPrintStyle = "babelMode"
 } else if (printStyle) {
-  getPrintStyle = "sublimated" //60% sublimated
+  getPrintStyle = "sublimated" //50% sublimated
 } else {
-  getPrintStyle = "engraved" //40% engraved
+  getPrintStyle = "engraved" //50% engraved
 }
 
 const dotMixes = [0,0,0,1,1,2,2,2,2,2,2,2,2] //dot vs line settings: 0 = all dot, 1 = mix dot-line, 2 = all line
@@ -68,21 +68,25 @@ if (babelMode) {
   getOffset = "square" //33% square
 } 
 
-//not setting this as a feature after all
-const letterGridSizes = ["small", "medium", "large"] //33% each //grid for the letter to be drawn on variable that can be changed. small medium large
+//character complexity
+const letterGridSizes = ["low", "medium", "high"] //33% each //grid for the letter to be drawn on variable that can be changed. small medium large
 let letterGridSize = letterGridSizes[Math.floor(fxrand() * letterGridSizes.length)]    
 let ltrGridSize 
-if (letterGridSize == "small") {
+if (letterGridSize == "low") {
   ltrGridSize = 6
 } else if (letterGridSize == "medium") {
   ltrGridSize = 10
 } else {
   ltrGridSize = 12
 }
+//set the feature setting to Babel if so
+if (babelMode) {
+  letterGridSize = "babelMode"
+}
 
 let totBox = ltrGridSize*ltrGridSize; //total number of squares in grid for a single letter; don't change
 
-const sgmtSizeAry = [5000,10000,15000,18000]
+const sgmtSizeAry = [2000, 5000, 8000, 10000, 10000, 12000, 15000, 25000]
 let sgmtSizeChoice = sgmtSizeAry[Math.floor(fxrand() * sgmtSizeAry.length)]
 let sgmt = Math.floor(Math.sqrt(sgmtSizeChoice/totBox)) //number of segments
 if (sgmt%2 == 0) {sgmt++} //ensure odd number of columns for better column offset display
@@ -124,14 +128,16 @@ if (babelMode) {
   getLtrPts = ltrPts
 }
 
+//babelMode will override all features except color mode - 15% babelMode
 window.$fxhashFeatures = {
-"color mode": getColorMode,
-"print style": getPrintStyle,
-"character form": getDotMix,
-"character style": getSquig,
-"character length": getLtrPts,
-"grid style": getOffset,
-"segments": getSgmt
+"color mode": getColorMode, //15% darkMode, 85% normal
+"print style": getPrintStyle, //50% sublimated, 50% engraved
+"character stroke form": getDotMix, //61% line, 23% dot, 15% dot-line mix
+"character stroke style": getSquig, //32% squiggly, 32% straighter, 32% straightest, 4% superSquiggly
+"character complexity": letterGridSize, //33% each of low, medium, high 
+"character max length": getLtrPts, //11% each of 10, 18, 25, 30, 50, 70, 43, 72, 100
+"grid style": getOffset, //66% offset, 33% square
+"grid segments": getSgmt //21% 11; 17% 9; 13% 7; 8% 5,13 or 17; 4% 3, 15, 16, 19, 21, 27
 
 }
 
@@ -147,11 +153,6 @@ let sketch = function(p5) {
   let locRow, locCol, loc, points, newPtx, newPty, totalPts, p, q, w, boxSize, lastDir, newDir, newLocLastDir
   let sqColor, dotMixRan, bgColPos, bgCol, bgWidth, pos
 
-  //+1 = FEATURE - needs setup
-  //let babelMode = fxrand() //Babelmode = overlaying multiple logographies. 15%?
-  //+1 = FEATURE - needs setup
-  //let darkMode = fxrand() //darkMode = background color = "#222222" (darkest color) 15%?
-
   p5.setup = function() {
     p5.createCanvas(p5.windowWidth, p5.windowHeight);
     bgWidth = p5.min(p5.width,p5.height)
@@ -160,7 +161,7 @@ let sketch = function(p5) {
     if (darkMode) { //15% chance of darkmode
       bgColPos = (colAry.length-1); //#222222 is last color in the array
     } else {
-      bgColPos = Math.floor(fxrand() * colAry.length);
+      bgColPos = Math.floor(fxrand() * (colAry.length-1));
     }
     bgCol = colAry[bgColPos];
     colAry.splice(bgColPos,1); //remove background color from color array used for letters
@@ -191,7 +192,7 @@ let sketch = function(p5) {
       dotMix = dotMixes[Math.floor(fxrand() * dotMixes.length)]
 
       letterGridSize = letterGridSizes[Math.floor(fxrand() * letterGridSizes.length)]  
-      if (letterGridSize == "small") {
+      if (letterGridSize == "low") {
         ltrGridSize = 6
       } else if (letterGridSize == "medium") {
         ltrGridSize = 10
@@ -234,7 +235,7 @@ let sketch = function(p5) {
     
     //+1 = FEATURE - setup complete
     let sublimate
-    if (getPrintStyle == "sublimated") {
+    if (printStyle) { //0 or 1 set pre-setup
       sublimate = 1
     } else {
       sublimate = 0
@@ -436,7 +437,6 @@ let sketch = function(p5) {
   }
     
   function bgNoise(bgCol) { //reference: https://editor.p5js.org/codingtrain/sketches/2_hBcOBrF
-
     let bgColRgb = hexToRgb(bgCol)
     let inc = 0.0025;
     let yoff = 0;
